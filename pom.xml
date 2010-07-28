@@ -1,0 +1,94 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>net.vidageek.tellme</groupId>
+	<artifactId>tell-me</artifactId>
+	<version>0.1</version>
+	<packaging>jar</packaging>
+	<name>Tell Me</name>
+	<description>A framework to develop object-oriented programs where your objects talk asynchronously to each other</description>
+	<properties>
+	  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<organization>
+		<name>VidaGeek.net</name>
+		<url>http://vidageek.net</url>
+	</organization>
+	<licenses>
+		<license>
+			<distribution>repo</distribution>
+			<name>Apache License, Version 2.0</name>
+			<url>http://apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+	<scm>
+		<connection>scm:git:git@github.com:vidageek/tell-me.git</connection>
+		<url>scm:git:git@github.com:vidageek/tell-me.git</url>
+		<developerConnection>scm:git:git@github.com:vidageek/tell-me.git</developerConnection>
+	</scm>
+	<issueManagement>
+		<url>http://github.com/vidageek/mirror/issues</url>
+	</issueManagement>
+	<distributionManagement>
+		<repository>
+			<id>vidageek.net</id>
+			<name>VidaGeek.net Maven Repository</name>
+			<url>scp://maven_sync@vidageek.net/home/maven_sync/maven.vidageek.net/</url>
+		</repository>
+		<snapshotRepository>
+			<id>vidageek.net</id>
+			<name>VidaGeek.net Maven Snapshot Repository</name>
+			<url>scp://maven_sync@vidageek.net/home/maven_sync/snapshots.vidageek.net/</url>
+			<uniqueVersion>false</uniqueVersion>
+		</snapshotRepository>
+	</distributionManagement>
+	<developers>
+		<developer>
+			<id>luiz</id>
+			<email>luiz@vidageek.net</email>
+			<name>Luiz Fernando Oliveira Corte Real</name>
+			<organization>VidaGeek.net</organization>
+			<organizationUrl>http://vidageek.net</organizationUrl>
+			<roles>
+				<role>Project Owner</role>
+				<role>Developer</role>
+			</roles>
+			<timezone>-3</timezone>
+		</developer>
+	</developers>
+	<dependencies>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.16</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.0-beta-9</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.0.4</version>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
