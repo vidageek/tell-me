@@ -23,21 +23,20 @@ public class ProxifierTest {
 	@BeforeClass
 	public static void proxifyMyObject() {
 		Proxifier proxifier = new Proxifier();
-		proxifier.proxify("net.vidageek.tellme.MyObject", "target/test-classes");
+		proxifier.proxify("net.vidageek.tellme.MyObject");
 	}
 
 	private	@Mock MessageQueue queue;
-	private MyObject myObject;
 
 	@Before
 	public void setUp() throws Exception {
 		MessageQueue.setDefault(queue);
-		myObject = new MyObject();
 	}
 
-	// FIXME make this pass on the first run (ClassLoader problem)
 	@Test
 	public void proxifyAnnotatedMethodsToGenerateMessagesWhenTheyAreCalled() throws Throwable {
+		// MUST be created here, otherwise the class is loaded before we replace its methods
+		MyObject myObject = new MyObject();
 		myObject.annotatedMethod();
 
 		Method annotatedMethod = new Mirror().on(MyObject.class).reflect().method("annotatedMethod").withoutArgs();
@@ -46,6 +45,7 @@ public class ProxifierTest {
 
 	@Test
 	public void doesNotProxifyNotAnnotatedMethods() throws Throwable {
+		MyObject myObject = new MyObject();
 		myObject.notAnnotatedMethod();
 
 		Method notAnnotatedMethod = new Mirror().on(MyObject.class).reflect().method("notAnnotatedMethod").withoutArgs();
