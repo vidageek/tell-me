@@ -1,37 +1,51 @@
 package net.vidageek.tellme;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
 
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.CallbackFilter;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.NoOp;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import net.vidageek.tellme.exceptions.ProxifyException;
 
 public final class Proxifier {
 
-	private static final List<Method> OBJECT_METHODS = Arrays.asList(Object.class.getDeclaredMethods());
-	private static final CallbackFilter IGNORE_BRIDGE_AND_OBJECT_METHODS = new CallbackFilter() {
-		@Override
-		public int accept(Method method) {
-			return method.isBridge() || !method.isAnnotationPresent(Async.class) || OBJECT_METHODS.contains(method) ? 1 : 0;
+	public void proxify(String className, String pathOfClassFile) {
+		ClassPool pool = ClassPool.getDefault();
+		try {
+			CtClass ctClassToProxify = pool.get(className);
+			Collection<CtMethod> methodsToProxify = findMethodsToProxify(ctClassToProxify);
+			proxifyMethods(methodsToProxify);
+			ctClassToProxify.writeFile(pathOfClassFile);
+		} catch (Exception e) {
+			throw new ProxifyException(e);
 		}
-	};
 
-	private final MethodInterceptor messageEnqueuerCallback;
-
-	public Proxifier(MethodInterceptor enqueuer) {
-		this.messageEnqueuerCallback = enqueuer;
 	}
 
-	public <T> T proxify(Class<T> toProxify) {
-		Enhancer enhancer = new Enhancer();
-		enhancer.setSuperclass(toProxify);
-		enhancer.setCallbackFilter(IGNORE_BRIDGE_AND_OBJECT_METHODS);
-		enhancer.setCallbacks(new Callback[] {messageEnqueuerCallback, NoOp.INSTANCE});
-		return (T) enhancer.create();
+	private void proxifyMethods(Collection<CtMethod> methodsToProxify) {
+		for (CtMethod methodToProxify : methodsToProxify) {
+			proxifyMethod(methodToProxify);
+		}
 	}
 
+	private void proxifyMethod(CtMethod methodToProxify) {
+		String methodName = methodToProxify.getName();
+		try {
+			methodToProxify.setBody("{ java.lang.reflect.Method thisMethod = $class.getDeclaredMethod(\"" + methodName + "\", $sig); net.vidageek.tellme.messaging.MessageQueue.getDefault().addMessage(new net.vidageek.tellme.messaging.MethodCallMessage(this, thisMethod, $args)); return ($r) null; }");
+		} catch (CannotCompileException e) {
+			throw new ProxifyException(e);
+		}
+	}
+
+	private Collection<CtMethod> findMethodsToProxify(CtClass ctClassToProxify) {
+		Collection<CtMethod> methodsToProxify = new ArrayList<CtMethod>();
+		for (CtMethod method : ctClassToProxify.getDeclaredMethods()) {
+			if (method.hasAnnotation(Async.class)) {
+				methodsToProxify.add(method);
+			}
+		}
+		return methodsToProxify;
+	}
 }
