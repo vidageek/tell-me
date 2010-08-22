@@ -40,4 +40,19 @@ public final class MethodCallMessage implements Message {
 		return stringBuilder.toString();
 	}
 
+	@Override
+	public void execute() {
+		Runnable executor = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					method.invoke(destination, args);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		};
+		new Thread(executor).start();
+	}
+
 }

@@ -8,4 +8,6 @@ public interface Message {
 
 	public Method getDestinationMethod();
 
+	public void execute();
+
 }
