@@ -18,23 +18,23 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ProxifierTest {
+public class DesynchronizerTest {
 
 	@BeforeClass
-	public static void proxifyMyObject() {
-		Proxifier proxifier = new Proxifier();
-		proxifier.proxify("net.vidageek.tellme.MyObject");
+	public static void desynchronizeMyObject() {
+		Desynchronizer desynchronizer = new Desynchronizer();
+		desynchronizer.desynchronize("net.vidageek.tellme.MyObject");
 	}
 
 	private	@Mock MessageQueue queue;
 
 	@Before
 	public void setUp() throws Exception {
-		MessageQueue.setDefault(queue);
+		Desynchronizer.setMessageQueue(queue);
 	}
 
 	@Test
-	public void proxifyAnnotatedMethodsToGenerateMessagesWhenTheyAreCalled() throws Throwable {
+	public void desynchronizesAnnotatedMethodsToGenerateMessagesWhenTheyAreCalled() throws Throwable {
 		// MUST be created here, otherwise the class is loaded before we replace its methods
 		MyObject myObject = new MyObject();
 		myObject.annotatedMethod();
@@ -44,7 +44,7 @@ public class ProxifierTest {
 	}
 
 	@Test
-	public void doesNotProxifyNotAnnotatedMethods() throws Throwable {
+	public void doesNotDesynchronizeNotAnnotatedMethods() throws Throwable {
 		MyObject myObject = new MyObject();
 		myObject.notAnnotatedMethod();
 
