@@ -7,6 +7,7 @@ import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
+import javassist.CtNewMethod;
 import net.vidageek.tellme.exceptions.DesynchronizationException;
 import net.vidageek.tellme.messaging.MessageQueue;
 
@@ -42,15 +43,27 @@ public final class Desynchronizer {
 	}
 
 	private void desynchronizeMethod(CtMethod methodToDesynchronize) {
-		String methodName = methodToDesynchronize.getName();
 		try {
+			String mangledMethodName = copyOriginalMethodWithMangledName(methodToDesynchronize);
 			methodToDesynchronize.setBody("{" +
-					"java.lang.reflect.Method thisMethod = $class.getDeclaredMethod(\"" + methodName + "\", $sig);" +
+					"java.lang.reflect.Method thisMethod = $class.getDeclaredMethod(\"" + mangledMethodName + "\", $sig);" +
 					"net.vidageek.tellme.Desynchronizer.getMessageQueue().addMessage(new net.vidageek.tellme.messaging.MethodCallMessage(this, thisMethod, $args));" +
 					"return ($r) null; }");
 		} catch (CannotCompileException e) {
 			throw new DesynchronizationException(e);
 		}
+	}
+
+	private String copyOriginalMethodWithMangledName(CtMethod methodToDesynchronize) throws CannotCompileException {
+		CtClass declaringClass = methodToDesynchronize.getDeclaringClass();
+		String mangledMethodName = mangleMethodName(methodToDesynchronize);
+		CtMethod originalMethodWithMangledName = CtNewMethod.copy(methodToDesynchronize, mangledMethodName, declaringClass, null);
+		declaringClass.addMethod(originalMethodWithMangledName);
+		return mangledMethodName;
+	}
+
+	private String mangleMethodName(CtMethod methodToDesynchronize) {
+		return methodToDesynchronize.getName() + "$$__desynchronized__";
 	}
 
 	private Collection<CtMethod> findMethodsToDesynchronize(CtClass classToDesynchronize) {

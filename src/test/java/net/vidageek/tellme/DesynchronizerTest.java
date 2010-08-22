@@ -1,7 +1,6 @@
 package net.vidageek.tellme;
 
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import java.lang.reflect.Method;
@@ -39,17 +38,13 @@ public class DesynchronizerTest {
 		MyObject myObject = new MyObject();
 		myObject.annotatedMethod();
 
-		Method annotatedMethod = new Mirror().on(MyObject.class).reflect().method("annotatedMethod").withoutArgs();
-		verify(queue).addMessage(argThat(isAMessageTo(myObject).calling(annotatedMethod)));
+		Method desynchronizedAnnotatedMethod = new Mirror().on(MyObject.class).reflect().method("annotatedMethod$$__desynchronized__").withoutArgs();
+		verify(queue).addMessage(argThat(isAMessageTo(myObject).calling(desynchronizedAnnotatedMethod)));
 	}
 
-	@Test
+	@Test(expected = NoSuchMethodException.class)
 	public void doesNotDesynchronizeNotAnnotatedMethods() throws Throwable {
-		MyObject myObject = new MyObject();
-		myObject.notAnnotatedMethod();
-
-		Method notAnnotatedMethod = new Mirror().on(MyObject.class).reflect().method("notAnnotatedMethod").withoutArgs();
-		verify(queue, never()).addMessage(argThat(isAMessageTo(myObject).calling(notAnnotatedMethod)));
+		MyObject.class.getMethod("notAnnotatedMethod$$__desynchronized__");
 	}
 
 	private MessageMatcher isAMessageTo(Object destination) {

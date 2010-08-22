@@ -26,6 +26,8 @@ public class DefaultMessageExecutor implements MessageExecutor {
 			}
 		};
 
-		new Thread(consumer).start();
+		Thread consumerThread = new Thread(consumer);
+		consumerThread.setDaemon(true);
+		consumerThread.start();
 	}
 }

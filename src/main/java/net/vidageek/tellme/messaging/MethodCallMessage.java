@@ -52,7 +52,9 @@ public final class MethodCallMessage implements Message {
 				}
 			}
 		};
-		new Thread(executor).start();
+		Thread executorThread = new Thread(executor);
+		executorThread.setDaemon(false);
+		executorThread.start();
 	}
 
 }

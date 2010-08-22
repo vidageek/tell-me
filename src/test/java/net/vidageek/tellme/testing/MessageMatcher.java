@@ -40,6 +40,9 @@ public final class MessageMatcher extends TypeSafeMatcher<Message> implements
 	}
 
 	public MessageMatcher calling(Method method) {
+		if (method == null) {
+			throw new IllegalArgumentException("If you want to specify a message to be received, it cannot be null");
+		}
 		this.expectedMethod = method;
 		return this;
 	}

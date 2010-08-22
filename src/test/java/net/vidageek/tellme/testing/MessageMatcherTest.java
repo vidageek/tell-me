@@ -66,4 +66,9 @@ public class MessageMatcherTest {
 	public void cannotCreateMatcherWithNullDestination() throws Exception {
 		new MessageMatcher(null);
 	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void cannotSetExpectedMessageToNull() throws Exception {
+		matcher.calling(null);
+	}
 }
